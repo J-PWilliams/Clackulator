@@ -1,0 +1,400 @@
+package com.jppw.ocja.clack;
+
+import java.awt.BorderLayout;
+
+public class CalculatorFrame extends JFrame {
+
+	private CalculatorFrame frame;
+	private Calculator calculator;
+	private StringBuilder displaySb;
+	private StringBuilder operationDisplaySb;
+	
+	private boolean operationReady;
+	
+	private double value1 = 0;
+	private double value2 = 0;
+	
+	private JPanel contentPane;
+	private JTextField displayField;
+	private JButton buttonZero = new JButton("0");
+	private JButton buttonOne = new JButton("1");
+	private JButton buttonTwo = new JButton("2");
+	private JButton buttonThree = new JButton("3");
+	private JButton buttonFour = new JButton("4");
+	private JButton buttonFive = new JButton("5");
+	private JButton buttonSix = new JButton("6");
+	private JButton buttonSeven = new JButton("7");
+	private JButton buttonEight = new JButton("8");
+	private JButton buttonNine = new JButton("9");
+	private JButton buttonAddition = new JButton("ADD");
+	private JButton buttonSubtraction = new JButton("SUBTRACT");
+	private JButton buttonDivision = new JButton("DIVIDE");
+	private JButton buttonMultiplication = new JButton("MULTIPLY");
+	private JButton buttonEquals = new JButton("ENTER");
+	private final JButton buttonClearAll = new JButton("CLEAR");
+	private final JButton buttonBackSpace = new JButton("UNDO");
+	private final JTextField displayWaitingOperation = new JTextField();
+	private final JButton buttonDecimal = new JButton(".");
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					CalculatorFrame frame = new CalculatorFrame();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public CalculatorFrame() {
+		displayWaitingOperation.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+		displayWaitingOperation.setBackground(Color.WHITE);
+		displayWaitingOperation.setBorder(null);
+		displayWaitingOperation.setHorizontalAlignment(SwingConstants.RIGHT);
+		displayWaitingOperation.setEditable(false);
+		displayWaitingOperation.setBounds(26, 11, 427, 20);
+		displayWaitingOperation.setColumns(10);
+		this.frame = this;
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 479, 333);
+		contentPane = new JPanel();
+		contentPane.setBackground(new Color(255, 69, 0));
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPane.setLayout(null);
+		setContentPane(contentPane);
+		
+		this.calculator = new Calculator();
+		this.displaySb = new StringBuilder().append("0");
+		this.operationDisplaySb = new StringBuilder();
+		buttonZero.setBackground(new Color(255, 255, 0));
+		buttonZero.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		buttonZero.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('0');
+			}
+		});
+		buttonZero.setBounds(10, 250, 89, 34);
+		contentPane.add(buttonZero);
+		buttonOne.setBackground(new Color(255, 255, 0));
+		buttonOne.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		
+		buttonOne.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('1');
+			}
+		});
+		buttonOne.setBounds(10, 205, 89, 34);
+		contentPane.add(buttonOne);
+		buttonTwo.setBackground(new Color(255, 255, 0));
+		buttonTwo.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		
+		buttonTwo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('2');
+			}
+		});
+		buttonTwo.setBounds(104, 205, 89, 34);
+		contentPane.add(buttonTwo);
+		buttonThree.setBackground(new Color(255, 255, 0));
+		buttonThree.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		
+		buttonThree.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('3');
+			}
+		});
+		buttonThree.setBounds(203, 205, 89, 34);
+		contentPane.add(buttonThree);
+		buttonFour.setBackground(new Color(255, 255, 0));
+		buttonFour.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		buttonFour.setForeground(Color.BLACK);
+		
+		
+		buttonFour.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('4');
+			}
+		});
+		buttonFour.setBounds(10, 160, 89, 34);
+		contentPane.add(buttonFour);
+		buttonFive.setBackground(new Color(255, 255, 0));
+		buttonFive.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		
+		buttonFive.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('5');
+			}
+		});
+		buttonFive.setBounds(104, 160, 89, 34);
+		contentPane.add(buttonFive);
+		buttonSix.setBackground(new Color(255, 255, 0));
+		buttonSix.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		
+		buttonSix.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('6');
+			}
+		});
+		buttonSix.setBounds(203, 160, 89, 34);
+		contentPane.add(buttonSix);
+		buttonSeven.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		buttonSeven.setForeground(Color.BLACK);
+		buttonSeven.setBackground(new Color(255, 255, 0));
+		
+		
+		buttonSeven.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('7');
+			}
+		});
+		buttonSeven.setBounds(10, 115, 89, 34);
+		contentPane.add(buttonSeven);
+		buttonEight.setBackground(new Color(255, 255, 0));
+		buttonEight.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		buttonEight.setForeground(Color.BLACK);
+		
+		
+		buttonEight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('8');
+			}
+		});
+		buttonEight.setBounds(104, 115, 89, 34);
+		contentPane.add(buttonEight);
+		buttonNine.setBackground(new Color(255, 255, 0));
+		buttonNine.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		buttonNine.setForeground(Color.BLACK);
+		
+		
+		buttonNine.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('9');
+			}
+		});
+		buttonNine.setBounds(203, 115, 89, 34);
+		contentPane.add(buttonNine);
+		buttonAddition.setBackground(new Color(0, 255, 255));
+		buttonAddition.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		
+		buttonAddition.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.awaitingCalculation("Addition");
+			}
+		});
+		buttonAddition.setBounds(324, 250, 129, 34);
+		contentPane.add(buttonAddition);
+		buttonSubtraction.setBackground(new Color(0, 255, 255));
+		buttonSubtraction.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		
+		buttonSubtraction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.awaitingCalculation("Subtraction");
+			}
+		});
+		buttonSubtraction.setBounds(324, 205, 129, 34);
+		contentPane.add(buttonSubtraction);
+		buttonDivision.setBackground(new Color(0, 255, 255));
+		buttonDivision.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		
+		buttonDivision.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.awaitingCalculation("Division");
+			}
+		});
+		buttonDivision.setBounds(324, 115, 129, 34);
+		contentPane.add(buttonDivision);
+		buttonMultiplication.setBackground(new Color(0, 255, 255));
+		buttonMultiplication.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		
+		buttonMultiplication.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.awaitingCalculation("Multiplication");
+			}
+		});
+		buttonMultiplication.setBounds(324, 160, 129, 34);
+		contentPane.add(buttonMultiplication);
+		
+		displayField = new JTextField();
+		displayField.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		displayField.setBackground(Color.WHITE);
+		displayField.setBorder(null);
+		displayField.setEditable(false);
+		displayField.setText("0");
+		displayField.setHorizontalAlignment(SwingConstants.RIGHT);
+		displayField.setBounds(26, 29, 427, 37);
+		contentPane.add(displayField);
+		displayField.setColumns(10);
+		buttonEquals.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		buttonEquals.setBackground(new Color(0, 255, 0));
+		
+		
+		buttonEquals.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.displayResult();
+			}
+		});
+		buttonEquals.setBounds(203, 250, 89, 34);
+		contentPane.add(buttonEquals);
+		buttonClearAll.setBackground(new Color(255, 255, 0));
+		buttonClearAll.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		buttonClearAll.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(displaySb.length() >= 1) displaySb.delete(0, displaySb.length());
+				if(operationDisplaySb.length() >= 1) operationDisplaySb.delete(0, operationDisplaySb.length());
+				
+				displayWaitingOperation.setText("");
+				displayField.setText("0");
+				
+			}
+		});
+		buttonClearAll.setBounds(36, 77, 115, 34);
+		contentPane.add(buttonClearAll);
+		buttonBackSpace.setBackground(new Color(255, 255, 0));
+		buttonBackSpace.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		buttonBackSpace.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.backspace();
+			}
+		});
+		buttonBackSpace.setBounds(161, 77, 109, 34);
+		contentPane.add(buttonBackSpace);
+		
+		contentPane.add(displayWaitingOperation);
+		buttonDecimal.setBackground(new Color(255, 255, 0));
+		buttonDecimal.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('.');
+			}
+		});
+		buttonDecimal.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		buttonDecimal.setBounds(104, 250, 89, 34);
+		
+		contentPane.add(buttonDecimal);
+	}
+	
+	private void addCharacterToDisplay(char ch) {
+		
+		if(displaySb.length() == 1 && displaySb.charAt(0) == '0') {
+			if(ch == '.') {
+				displaySb.append(ch);
+			} else {
+				displaySb.replace(0, 1, ""+ch);
+			}
+		} else if(displaySb.length() == 2 && (displaySb.toString().charAt(0) == '-' && displaySb.toString().charAt(1) == '0')) {
+			displaySb.replace(1, 2, ""+ch);
+		}else {
+			if(ch == '.') {
+				if(!displaySb.toString().contains(".")) displaySb.append(ch);
+			} else {
+				displaySb.append(ch);
+			}
+		}
+		 //Append the character selected to the StringBuilder object so we can redisplay it.
+		this.updateDisplay(); //Call the updateDisplay Method. 
+	}
+	
+	private void updateDisplay() { //Update the display with the new character added.
+		displayField.setText(this.displaySb.toString());
+	}
+	
+	private void awaitingCalculation(String operation) {
+		
+			char operationChar = 0;
+			switch(operation) {
+				case "Addition": { operationChar = '+'; break; }
+				case "Subtraction":	{ 
+					operationChar = '-';
+					if(displaySb.length() == 1 && displaySb.charAt(0) == '0') {
+						displaySb.replace(0, 1, "-").append("0");
+						this.updateDisplay();
+						return;
+					}
+					break; 
+				}
+				case "Multiplication": { operationChar = '\u00D7'; break; }
+				case "Division": { operationChar = '\u00F7'; break; }
+			}
+			this.value1 = Double.parseDouble(displayField.getText());
+			
+			if(this.operationReady) {
+				//threw a StringIndexOutOfBoundsException
+				if(operationDisplaySb.length() >= 1) {
+					//operationDisplaySb.delete(operationDisplaySb.length() - 1, operationDisplaySb.length());
+					operationDisplaySb.replace(operationDisplaySb.length()-1, operationDisplaySb.length(), ""+operationChar);
+				}
+			}	
+			//} else {
+			
+				operationDisplaySb.append("" + value1 + " " + operationChar);
+				this.displayWaitingOperation.setText(operationDisplaySb.toString());
+				//if(willBeDouble == true) //ParseInt
+				//else //ParseDouble
+				if(displaySb.length() >= 1) displaySb.delete(0, displaySb.length());
+				this.operationReady = true;
+				displayField.setText("0");	
+			//}
+	}
+	
+	private void displayResult() { //Display the result of the calculation.
+		char operationChar = 0; 
+		
+		if(operationDisplaySb.length() > 1) {
+			operationChar = operationDisplaySb.charAt(operationDisplaySb.length() - 1);
+			this.value2 = Double.parseDouble(displayField.getText());
+			
+			switch(operationChar) {
+				case '+': {  displayField.setText(""+calculator.addition( this.value1,  this.value2)); break; }
+				case '-': {  displayField.setText(""+calculator.subtraction( this.value1,  this.value2)); break;}
+				case '\u00D7': {  displayField.setText(""+calculator.multiplication( this.value1,  this.value2)); break;}
+				case '\u00F7': {  displayField.setText(""+calculator.division( this.value1,  this.value2)); break;}
+			}
+			
+			
+			//System.out.println("Value1: " + this.value1 + " | Value2: " + this.value2);
+			if(displaySb.length() >= 1) displaySb.delete(0,	displaySb.length());
+			if(operationDisplaySb.length() >= 1) operationDisplaySb.delete(0, operationDisplaySb.length());
+			displayWaitingOperation.setText("");
+			
+			
+			this.value1 = 0;
+			this.value2 = 0;
+		}
+		
+		
+		//displaySb.delete(0, displaySb.length());
+		//operationDisplaySb.delete(0, operationDisplaySb.length());
+	}
+	
+	private void backspace() {
+		
+		//StringBuilder tempSb = new StringBuilder(displayField.getText());
+		if(displaySb.length() == 1) {
+			displaySb.replace(0, displaySb.length(), "0");
+		} else {
+			if(displaySb.length() >= 1) displaySb.delete(displaySb.length() - 1, displaySb.length());
+		}
+		
+		if(displaySb.length() == 0) displaySb.append("0");
+		
+		this.updateDisplay();
+	}
+}
