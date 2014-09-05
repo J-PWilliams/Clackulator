@@ -1,0 +1,622 @@
+package com.jppw.ocja.clack;
+
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.JButton;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.SystemColor;
+import javax.swing.border.LineBorder;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+public class CalculatorFrame extends JFrame implements Runnable, KeyListener{
+
+	private static final char MULTIPLICATION_SYMBOL = '\u00D7'; 
+	private static final char DIVISION_SYMBOL = '\u00F7'; 
+	private CalculatorFrame frame;
+	private Calculator calculator;
+	private StringBuilder displaySb;
+	private StringBuilder operationDisplaySb;
+	private Thread thread;
+	
+	private boolean operationReady;
+	private boolean clickedEquals;
+	private boolean dividedByZero;
+	private double value1 = 0;
+	private double value2 = 0;
+	private boolean shiftPressed;
+	private long keyEnteredTime = 0L;
+	
+	private JPanel contentPane;
+	private JTextField displayField;
+	private JButton buttonZero = new JButton("0");
+	private JButton buttonOne = new JButton("1");
+	private JButton buttonTwo = new JButton("2");
+	private JButton buttonThree = new JButton("3");
+	private JButton buttonFour = new JButton("4");
+	private JButton buttonFive = new JButton("5");
+	private JButton buttonSix = new JButton("6");
+	private JButton buttonSeven = new JButton("7");
+	private JButton buttonEight = new JButton("8");
+	private JButton buttonNine = new JButton("9");
+	private JButton buttonAddition = new JButton("+");
+	private JButton buttonSubtraction = new JButton("-");
+	private JButton buttonDivision = new JButton(""+DIVISION_SYMBOL);
+	private JButton buttonMultiplication = new JButton(""+MULTIPLICATION_SYMBOL);
+	private JButton buttonEquals = new JButton("=");
+	private final JButton buttonClearAll = new JButton("CLEAR");
+	private final JButton buttonBackSpace = new JButton("UNDO");
+	private final JTextField displayWaitingOperation = new JTextField();
+	private final JButton buttonDecimal = new JButton(".");
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					CalculatorFrame frame = new CalculatorFrame();
+					frame.setVisible(true);
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public CalculatorFrame() {
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				frame.requestFocus();
+			}
+		});
+		setTitle("ClacKuLatTor");
+		this.setFocusable(true);
+		//System.out.println("Cons called");
+		displayWaitingOperation.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+		displayWaitingOperation.setBackground(Color.WHITE);
+		displayWaitingOperation.setBorder(null);
+		displayWaitingOperation.setHorizontalAlignment(SwingConstants.RIGHT);
+		displayWaitingOperation.setEditable(false);
+		displayWaitingOperation.setBounds(18, 11, 427, 20);
+		displayWaitingOperation.setColumns(10);
+		this.frame = this;
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 479, 333);
+		contentPane = new JPanel();
+		contentPane.setBackground(new Color(255, 215, 0));
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPane.setLayout(null);
+		addKeyListener(frame);
+		setContentPane(contentPane);
+		
+		this.calculator = new Calculator();
+		this.displaySb = new StringBuilder().append("0");
+		this.operationDisplaySb = new StringBuilder();
+		buttonZero.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		buttonZero.setBackground(new Color(255, 140, 0));
+		buttonZero.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		buttonZero.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('0');
+			}
+		});
+		buttonZero.setBounds(10, 250, 89, 34);
+		contentPane.add(buttonZero);
+		buttonOne.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		buttonOne.setBackground(new Color(255, 140, 0));
+		buttonOne.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		
+		buttonOne.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('1');
+			}	
+		});
+		buttonOne.setBounds(10, 205, 89, 34);
+		contentPane.add(buttonOne);
+		buttonTwo.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		buttonTwo.setBackground(new Color(255, 140, 0));
+		buttonTwo.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		
+		buttonTwo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('2');
+			}
+		});
+		buttonTwo.setBounds(104, 205, 89, 34);
+		contentPane.add(buttonTwo);
+		buttonThree.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		buttonThree.setBackground(new Color(255, 140, 0));
+		buttonThree.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		
+		buttonThree.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('3');
+			}
+		});
+		buttonThree.setBounds(203, 205, 89, 34);
+		contentPane.add(buttonThree);
+		buttonFour.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		buttonFour.setBackground(new Color(255, 140, 0));
+		buttonFour.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		buttonFour.setForeground(Color.BLACK);
+		
+		
+		buttonFour.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('4');
+			}
+		});
+		buttonFour.setBounds(10, 160, 89, 34);
+		contentPane.add(buttonFour);
+		buttonFive.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		buttonFive.setBackground(new Color(255, 140, 0));
+		buttonFive.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		
+		buttonFive.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('5');
+			}
+		});
+		buttonFive.setBounds(104, 160, 89, 34);
+		contentPane.add(buttonFive);
+		buttonSix.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		buttonSix.setBackground(new Color(255, 140, 0));
+		buttonSix.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		
+		buttonSix.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('6');
+			}
+		});
+		buttonSix.setBounds(203, 160, 89, 34);
+		contentPane.add(buttonSix);
+		buttonSeven.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		buttonSeven.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		buttonSeven.setForeground(Color.BLACK);
+		buttonSeven.setBackground(new Color(255, 140, 0));
+		
+		
+		buttonSeven.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('7');
+			}
+		});
+		buttonSeven.setBounds(10, 115, 89, 34);
+		contentPane.add(buttonSeven);
+		buttonEight.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		buttonEight.setBackground(new Color(255, 140, 0));
+		buttonEight.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		buttonEight.setForeground(Color.BLACK);
+		
+		
+		buttonEight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('8');
+			}
+		});
+		buttonEight.setBounds(104, 115, 89, 34);
+		contentPane.add(buttonEight);
+		buttonNine.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		buttonNine.setBackground(new Color(255, 140, 0));
+		buttonNine.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		buttonNine.setForeground(Color.BLACK);
+		
+		
+		buttonNine.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('9');
+			}
+		});
+		buttonNine.setBounds(203, 115, 89, 34);
+		contentPane.add(buttonNine);
+		buttonAddition.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		buttonAddition.setBackground(new Color(175, 238, 238));
+		buttonAddition.setFont(new Font("Times New Roman", Font.BOLD, 28));
+		
+		
+		buttonAddition.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.awaitingCalculation("Addition");
+			}
+		});
+		buttonAddition.setBounds(324, 250, 129, 34);
+		contentPane.add(buttonAddition);
+		buttonSubtraction.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		buttonSubtraction.setBackground(new Color(175, 238, 238));
+		buttonSubtraction.setFont(new Font("Times New Roman", Font.BOLD, 28));
+		
+		
+		buttonSubtraction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.awaitingCalculation("Subtraction");
+			}
+		});
+		buttonSubtraction.setBounds(324, 205, 129, 34);
+		contentPane.add(buttonSubtraction);
+		buttonDivision.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		buttonDivision.setBackground(new Color(175, 238, 238));
+		buttonDivision.setFont(new Font("Times New Roman", Font.BOLD, 28));
+		
+		
+		buttonDivision.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.awaitingCalculation("Division");
+			}
+		});
+		buttonDivision.setBounds(324, 115, 129, 34);
+		contentPane.add(buttonDivision);
+		buttonMultiplication.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		buttonMultiplication.setBackground(new Color(175, 238, 238));
+		buttonMultiplication.setFont(new Font("Times New Roman", Font.BOLD, 28));
+		
+		
+		buttonMultiplication.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.awaitingCalculation("Multiplication");
+			}
+		});
+		buttonMultiplication.setBounds(324, 160, 129, 34);
+		contentPane.add(buttonMultiplication);
+		
+		displayField = new JTextField();
+		displayField.setFont(new Font("Times New Roman", Font.PLAIN, 27));
+		displayField.setBackground(Color.WHITE);
+		displayField.setBorder(null);
+		displayField.setEditable(false);
+		displayField.setText("0");
+		displayField.setHorizontalAlignment(SwingConstants.RIGHT);
+		displayField.setBounds(18, 29, 427, 37);
+		contentPane.add(displayField);
+		displayField.setColumns(10);
+		buttonEquals.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		buttonEquals.setActionCommand("=");
+		buttonEquals.setFont(new Font("Times New Roman", Font.BOLD, 22));
+		buttonEquals.setBackground(new Color(124, 252, 0));
+		
+		
+		buttonEquals.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.displayResult();
+			}
+		});
+		buttonEquals.setBounds(203, 250, 89, 34);
+		contentPane.add(buttonEquals);
+		buttonClearAll.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		buttonClearAll.setBackground(new Color(255, 69, 0));
+		buttonClearAll.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		buttonClearAll.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.clear();
+				
+			}
+		});
+		buttonClearAll.setBounds(91, 77, 115, 34);
+		contentPane.add(buttonClearAll);
+		buttonBackSpace.setVisible(false);
+		buttonBackSpace.setEnabled(false);
+		buttonBackSpace.setBackground(new Color(255, 255, 0));
+		buttonBackSpace.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		buttonBackSpace.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.backspace();
+			}
+		});
+		buttonBackSpace.setBounds(161, 77, 109, 34);
+		contentPane.add(buttonBackSpace);
+		
+		contentPane.add(displayWaitingOperation);
+		buttonDecimal.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		buttonDecimal.setBackground(new Color(255, 140, 0));
+		buttonDecimal.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.addCharacterToDisplay('.');
+			}
+		});
+		buttonDecimal.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		buttonDecimal.setBounds(104, 250, 89, 34);
+		
+		contentPane.add(buttonDecimal);
+		
+		JButton btnFlipSign = new JButton("+/-");
+		btnFlipSign.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		btnFlipSign.setBackground(new Color(175, 238, 238));
+		btnFlipSign.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(displaySb.length() >= 1) {
+					if(displaySb.charAt(0) == '-') {
+						displaySb.delete(0, 1);
+					} else displaySb.insert(0,"-");
+					
+					frame.updateDisplay();
+				}
+			}
+		});
+		btnFlipSign.setFont(new Font("Times New Roman", Font.BOLD, 28));
+		btnFlipSign.setBounds(324, 75, 129, 34);
+		contentPane.add(btnFlipSign);
+	}
+	
+	private void addCharacterToDisplay(char ch) {
+		frame.requestFocus();
+		if(displaySb.length() >= 10) return;
+		if(dividedByZero) { this.clear(); }
+		//if(displaySb.toString().contains("Cannot")) displaySb.delete(0, displaySb.length()).append("0");
+		if(clickedEquals) {
+			if(displaySb.length() >= 1) displaySb.delete(0, displaySb.length());
+			if(operationDisplaySb.length() >= 1) operationDisplaySb.delete(0, operationDisplaySb.length());
+			displayWaitingOperation.setText("");
+			clickedEquals = false;
+		}
+		if(displaySb.length() == 1 && displaySb.charAt(0) == '0') {
+			if(ch == '.') {
+				displaySb.append(ch);
+			} else {
+				displaySb.replace(0, 1, ""+ch);
+			}
+		} else if(displaySb.length() == 2 && (displaySb.toString().charAt(0) == '-' && displaySb.toString().charAt(1) == '0')) {
+			displaySb.replace(1, 2, ""+ch);
+		}else {
+			if(ch == '.') {
+				if(!displaySb.toString().contains(".")) displaySb.append(ch);
+			} else {
+				displaySb.append(ch);
+			}
+		}
+		 //Append the character selected to the StringBuilder object so we can redisplay it.
+		this.updateDisplay(); //Call the updateDisplay Method. 
+	}
+	
+	private void updateDisplay() { //Update the display with the new character added.
+		displayField.setText(this.displaySb.toString());	
+	}
+	private void updateOperationDisplay() {
+		displayWaitingOperation.setText(operationDisplaySb.toString());
+	}
+	
+	private void awaitingCalculation(String operation) {
+		frame.requestFocus();
+		boolean isDecimal = false;
+		if(dividedByZero) { this.clear(); }
+		if(clickedEquals) {
+			if(displaySb.length() >= 1) displaySb.delete(0, displaySb.length()).append("0");
+			if(operationDisplaySb.length() >= 1) operationDisplaySb.delete(0, operationDisplaySb.length());
+			displayWaitingOperation.setText("");
+			clickedEquals = false;
+		}
+		char operationChar = 0;
+		switch(operation) {
+			case "Addition": { operationChar = '+'; break; }
+			case "Subtraction":	{ operationChar = '-'; break; }
+			case "Multiplication": { operationChar = MULTIPLICATION_SYMBOL; break; }
+			case "Division": { operationChar = DIVISION_SYMBOL; break; }
+		}
+		this.value1 = Double.parseDouble(displayField.getText());
+		double tempVal1, tempVal2;
+		tempVal1 = tempVal2 = 0.0D;
+		tempVal1 = (int) this.value1;
+		tempVal2 = (this.value1 + 1.0);
+		tempVal2 = (int) tempVal2;
+		
+		if(this.value1 > tempVal1 && this.value1 < tempVal2) isDecimal = true;
+		if(this.operationReady) {
+			if(operationDisplaySb.length() >= 1) {
+				operationDisplaySb.replace(operationDisplaySb.length()-1, operationDisplaySb.length(), ""+operationChar);
+				this.updateOperationDisplay();
+				return;
+			}
+		}	
+		//
+		if(isDecimal) operationDisplaySb.append("" + value1);
+		else operationDisplaySb.append("" + (int) value1);
+		operationDisplaySb.append(" " + operationChar);
+		this.displayWaitingOperation.setText(operationDisplaySb.toString());
+
+		if(displaySb.length() >= 1) displaySb.delete(0, displaySb.length()).append("0");
+		this.operationReady = true;
+
+		this.updateDisplay();
+	}
+	
+	private void displayResult() { //Display the result of the calculation.
+		frame.requestFocus();
+		char operationChar = 0; 
+		boolean willBeDecimal = false;
+		boolean isDecimal = false;
+		double tempVal1, tempVal2, result;
+		tempVal1 = tempVal2 = result = 0.0D;
+		if(operationDisplaySb.length() >= 1) {
+			operationChar = operationDisplaySb.charAt(operationDisplaySb.length() - 1);
+			this.value2 = Double.parseDouble(displayField.getText());			
+			
+			if(this.value2 == 0.0) {
+				if(displaySb.length() >= 1) { 
+					displaySb.delete(0, displaySb.length());
+					displaySb.append("Cannot divide by 0");
+					this.updateDisplay();
+					this.dividedByZero = true;
+				}
+				return;
+			}
+			switch(operationChar) {
+				case '+': { result = calculator.addition( this.value1,  this.value2); break; }
+				case '-': {  result = calculator.subtraction( this.value1,  this.value2); break;}
+				case MULTIPLICATION_SYMBOL: {  result = calculator.multiplication( this.value1,  this.value2); break;}
+				case DIVISION_SYMBOL: {  result =  calculator.division( this.value1,  this.value2); break; }
+			}
+			
+			tempVal1 = (int) result;
+			tempVal2 = (result + 1.0);
+			tempVal2 = (int) tempVal2;
+
+			if(result > tempVal1 && result < tempVal2) {
+				//System.out.println("Should be a decimal!");
+				willBeDecimal = true;
+			}		
+			
+			tempVal1 = tempVal2 = 0.0D;
+			tempVal1 = (int) this.value2;
+			tempVal2 = (this.value2 + 1.0);
+			tempVal2 = (int) tempVal2;
+			
+			if(this.value2 > tempVal1 && this.value2 < tempVal2) isDecimal = true;
+			if(isDecimal) operationDisplaySb.append(" "+ this.value2);
+			else operationDisplaySb.append(" "+ (int) this.value2);
+			
+			operationDisplaySb.append(" = ");
+			displayWaitingOperation.setText(operationDisplaySb.toString());
+			if(willBeDecimal) { 
+				displayField.setText(""+result);
+				if(displaySb.length() >= 1) displaySb.delete(0, displaySb.length()).append(""+result);
+			}
+			else {
+				displayField.setText(""+(int)result);
+				if(displaySb.length() >= 1) displaySb.delete(0, displaySb.length()).append(""+(int)result);
+			}
+			
+			//this.value1 = 0;
+			//this.value2 = 0;
+			
+			this.clickedEquals = true;
+		}
+	}
+	
+	private void backspace() {
+		frame.requestFocus();
+		
+		//StringBuilder tempSb = new StringBuilder(displayField.getText());
+		if(displaySb.length() == 1) {
+			displaySb.replace(0, displaySb.length(), "0");
+		} else {
+			if(displaySb.length() >= 1) displaySb.delete(displaySb.length() - 1, displaySb.length());
+		}
+		
+		if(displaySb.length() == 0) displaySb.append("0");
+		
+		this.updateDisplay();
+	}
+	
+	private void clear() {
+		frame.requestFocus();
+		if(displaySb.length() >= 1) displaySb.delete(0, displaySb.length()).append("0");
+		if(operationDisplaySb.length() >= 1) operationDisplaySb.delete(0, operationDisplaySb.length());
+		
+		this.updateDisplay();//displayWaitingOperation.setText("");
+		this.updateOperationDisplay();//displayField.setText("0");
+		
+		this.dividedByZero = false;
+		this.operationReady = false;
+		this.clickedEquals = false;
+	
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		//System.out.println("Code: " + e.getKeyCode());
+		if(keyEnteredTime == 0 || (System.currentTimeMillis() - keyEnteredTime > 50)) {
+			int keyCode = e.getKeyCode();
+			switch(keyCode) {
+				case KeyEvent.VK_SHIFT: { shiftPressed = true; break; }
+				case KeyEvent.VK_NUMPAD0: { }
+				case KeyEvent.VK_0: { this.addCharacterToDisplay('0'); break; }
+				case KeyEvent.VK_NUMPAD1: { }
+				case KeyEvent.VK_1: { this.addCharacterToDisplay('1'); break; }
+				case KeyEvent.VK_NUMPAD2: {  }
+				case KeyEvent.VK_2: { this.addCharacterToDisplay('2'); break; }
+				case KeyEvent.VK_NUMPAD3: {  }
+				case KeyEvent.VK_3: { this.addCharacterToDisplay('3'); break; }
+				case KeyEvent.VK_NUMPAD4: { }
+				case KeyEvent.VK_4: { this.addCharacterToDisplay('4'); break; }
+				case KeyEvent.VK_NUMPAD5: { }
+				case KeyEvent.VK_5: { this.addCharacterToDisplay('5'); break; }
+				case KeyEvent.VK_NUMPAD6: {  }
+				case KeyEvent.VK_6: { this.addCharacterToDisplay('6'); break; }
+				case KeyEvent.VK_NUMPAD7: {  }
+				case KeyEvent.VK_7: { this.addCharacterToDisplay('7'); break; }
+				case KeyEvent.VK_NUMPAD8: {  }
+				case KeyEvent.VK_8: { this.addCharacterToDisplay('8'); break; }
+				case KeyEvent.VK_NUMPAD9: {  }
+				case KeyEvent.VK_9: { this.addCharacterToDisplay('9'); break; }
+				case KeyEvent.VK_ADD: { this.awaitingCalculation("Addition"); break; }
+				case 109: { } //Numpad '-'.
+				case KeyEvent.VK_MINUS: { this.awaitingCalculation("Subtraction"); break; }
+				case KeyEvent.VK_MULTIPLY: { this.awaitingCalculation("Multiplication"); break; }
+				case 47: { } //Normal divide
+				case KeyEvent.VK_DIVIDE: { this.awaitingCalculation("Division"); break; }
+				case 110: { } //Numpad '.'
+				case KeyEvent.VK_PERIOD: { this.addCharacterToDisplay('.'); break; }
+				case KeyEvent.VK_EQUALS: { }
+				case KeyEvent.VK_ENTER: { this.displayResult(); break; }
+				
+			}
+			keyEnteredTime = System.currentTimeMillis();
+			//if(keyCode != KeyEvent.VK_SHIFT) shiftPressed = false;
+		}
+		frame.requestFocus();
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addNotify() {		
+		super.addNotify();
+		if(null == thread) {
+			thread = new Thread(this);
+			thread.start();
+		}
+		this.addKeyListener(this);
+	}
+	@Override
+	public void run() {
+		this.requestFocus();
+		
+	}
+}
+
+/*
+
+if(shiftPressed) { this.awaitingCalculation("Addition"); shiftPressed = false; break; }
+else { 
+	
+}
+*/
